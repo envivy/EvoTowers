@@ -7,6 +7,9 @@ namespace EvoTowers.Task1
     public class WaveDefinition
     {
         public string displayName = "Wave";
+        public int clearReward = 30;
+        public bool isBossWave;
+        public bool triggersUpgradeDraft = true;
         public List<WaveSpawnGroup> groups = new List<WaveSpawnGroup>();
     }
 

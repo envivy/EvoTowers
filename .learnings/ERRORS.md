@@ -4,6 +4,64 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260507-004] unity_batchmode_license_ipc_timeout
+
+**Logged**: 2026-05-07T16:00:08+08:00
+**Priority**: medium
+**Status**: pending
+**Area**: config
+
+### Summary
+Unity batchmode scene generation could not run because the editor failed to connect to the LicensingClient IPC channel.
+
+### Error
+```text
+IPC channel to LicensingClient doesn't exist; aborting
+Application will terminate with return code 199
+```
+
+### Context
+- Command attempted: `Unity.exe -batchmode -quit -projectPath E:\AgentGames\EvoTowers -executeMethod EvoTowers.Task1.Editor.Task1SceneBuilder.CreateWeek3BattleScene`
+- The shell returned 0, but Unity log showed licensing failure and the execute method did not update `Assets/Scenes/Battle.unity`.
+
+### Suggested Fix
+Open Unity interactively once to refresh licensing, or run batchmode from an environment where the Unity LicensingClient can start and accept IPC connections.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: Assets/Editor/Task1/Task1SceneBuilder.cs, Temp/task4-scene-build.log
+
+---
+
+## [ERR-20260507-003] powershell_select_object_range
+
+**Logged**: 2026-05-07T15:26:52+08:00
+**Priority**: low
+**Status**: pending
+**Area**: config
+
+### Summary
+PowerShell rejected `Select-Object -Index 300..380` because the range expression was passed as a string-like argument instead of an evaluated array.
+
+### Error
+```text
+Cannot bind parameter 'Index'. Cannot convert value "300..380" to type "System.Int32".
+```
+
+### Context
+- Command attempted: `Get-Content Assets\Editor\Task1\Task1SceneBuilder.cs | Select-Object -Index 300..380`
+- The failure was caused by PowerShell syntax, not project code.
+
+### Suggested Fix
+Use `Select-Object -Skip <n> -First <n>` for file snippets, or wrap ranges as `(300..380)` when an `-Index` array is required.
+
+### Metadata
+- Reproducible: yes
+- Related Files: none
+- See Also: ERR-20260506-002
+
+---
+
 ## [ERR-20260506-004] unity_builtin_font_arial_removed
 
 **Logged**: 2026-05-06T17:00:00+08:00

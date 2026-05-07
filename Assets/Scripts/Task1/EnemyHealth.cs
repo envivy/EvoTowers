@@ -24,14 +24,20 @@ namespace EvoTowers.Task1
         private int burnStacks;
         private int maxBurnStacks = 1;
         private bool isResolved;
+        private float healCooldown;
+        private bool bossSummon75Triggered;
+        private bool bossSummon50Triggered;
+        private bool bossSummon25Triggered;
 
         public event Action<EnemyHealth, TowerController> Resolved;
+        public event Action<EnemyHealth, float> BossHealthThresholdReached;
 
         public float HealthProgress => config != null && config.maxHealth > 0f ? health / config.maxHealth : 0f;
         public float CurrentHealth => health;
         public float MaxHealth => config != null ? config.maxHealth : 0f;
         public bool IsAlive => !isResolved && health > 0f;
         public bool IsElite => config != null && config.isElite;
+        public bool IsBoss => config != null && config.isBoss;
         public bool IsMarked => markTimer > 0f;
         public TowerController MarkSource => markSource;
         public float MoveSpeedMultiplier => slowTimer > 0f ? Mathf.Max(0.15f, 1f - slowPercent) : 1f;
@@ -52,6 +58,7 @@ namespace EvoTowers.Task1
             TickBurn();
             TickSlow();
             TickMark();
+            TickHealing();
         }
 
         public void Initialize(EnemyConfig enemyConfig)
@@ -73,6 +80,18 @@ namespace EvoTowers.Task1
             }
 
             UpdateHealthView();
+        }
+
+        public void Heal(float amount)
+        {
+            if (isResolved || amount <= 0f || config == null)
+            {
+                return;
+            }
+
+            health = Mathf.Min(config.maxHealth, health + amount);
+            UpdateHealthView();
+            PlayHealEffect();
         }
 
         public void TakeDamage(float amount)
@@ -194,20 +213,113 @@ namespace EvoTowers.Task1
                 damageContributors[source] += amount;
             }
 
-            health = Mathf.Max(0f, health - amount);
+            float armor = config != null ? config.armorPercent : 0f;
+            if (config != null && config.isBoss && health <= config.maxHealth * 0.5f)
+            {
+                armor += 0.1f;
+            }
+
+            float finalAmount = amount * (1f - Mathf.Clamp01(armor));
+            health = Mathf.Max(0f, health - finalAmount);
             UpdateHealthView();
+            CheckBossThresholds();
+            GameAudio.Instance?.PlayHit();
 
             if (health <= 0f)
             {
                 isResolved = true;
+                GameManager.Instance?.NotifyEnemyKilled(this);
                 GameManager.Instance?.AddGold(config != null ? config.goldReward : 0);
                 AwardKillExperience(source);
                 PlayDeathEffect();
+                GameAudio.Instance?.PlayDeath();
                 Finish(source);
                 return true;
             }
 
             return false;
+        }
+
+        private void TickHealing()
+        {
+            if (config == null || !config.isHealer)
+            {
+                return;
+            }
+
+            healCooldown -= Time.deltaTime;
+            if (healCooldown > 0f)
+            {
+                return;
+            }
+
+            healCooldown = Mathf.Max(0.1f, config.healInterval);
+            EnemyHealth target = FindHealTarget();
+            if (target != null)
+            {
+                target.Heal(config.healAmount);
+                PlayHealBeam(target);
+            }
+        }
+
+        private EnemyHealth FindHealTarget()
+        {
+            if (GameManager.Instance == null)
+            {
+                return null;
+            }
+
+            EnemyHealth best = null;
+            float lowestRatio = 1f;
+            foreach (EnemyHealth enemy in GameManager.Instance.ActiveEnemies)
+            {
+                if (enemy == null || enemy == this || !enemy.IsAlive || enemy.IsBoss)
+                {
+                    continue;
+                }
+
+                if (Vector3.Distance(transform.position, enemy.transform.position) > config.healRange)
+                {
+                    continue;
+                }
+
+                float ratio = enemy.MaxHealth > 0f ? enemy.CurrentHealth / enemy.MaxHealth : 1f;
+                if (ratio < lowestRatio)
+                {
+                    lowestRatio = ratio;
+                    best = enemy;
+                }
+            }
+
+            return best;
+        }
+
+        private void CheckBossThresholds()
+        {
+            if (config == null || !config.isBoss || health <= 0f)
+            {
+                return;
+            }
+
+            float progress = HealthProgress;
+            if (!bossSummon75Triggered && progress <= 0.75f)
+            {
+                bossSummon75Triggered = true;
+                BossHealthThresholdReached?.Invoke(this, 0.75f);
+            }
+
+            if (!bossSummon50Triggered && progress <= 0.5f)
+            {
+                bossSummon50Triggered = true;
+                BossHealthThresholdReached?.Invoke(this, 0.5f);
+                PlayHealEffect();
+            }
+
+            if (!bossSummon25Triggered && progress <= 0.25f)
+            {
+                bossSummon25Triggered = true;
+                BossHealthThresholdReached?.Invoke(this, 0.25f);
+            }
         }
 
         private void Finish(TowerController killer = null)
@@ -256,6 +368,36 @@ namespace EvoTowers.Task1
             }
 
             autoDestroy.SetLifetime(0.35f);
+        }
+
+        private void PlayHealEffect()
+        {
+            GameObject effect = new GameObject("HealEffect");
+            effect.transform.SetParent(transform, false);
+            effect.transform.localScale = new Vector3(0.42f, 0.42f, 1f);
+            SpriteRenderer renderer = effect.AddComponent<SpriteRenderer>();
+            renderer.sprite = CreateStatusSprite();
+            renderer.color = new Color(0.25f, 1f, 0.35f, 0.65f);
+            renderer.sortingOrder = 56;
+            AutoDestroyAfterDelay autoDestroy = effect.AddComponent<AutoDestroyAfterDelay>();
+            autoDestroy.SetLifetime(0.35f);
+        }
+
+        private void PlayHealBeam(EnemyHealth target)
+        {
+            GameObject lineObject = new GameObject("HealBeam");
+            LineRenderer line = lineObject.AddComponent<LineRenderer>();
+            line.material = new Material(Shader.Find("Sprites/Default"));
+            line.positionCount = 2;
+            line.SetPosition(0, transform.position);
+            line.SetPosition(1, target.transform.position);
+            line.startWidth = 0.04f;
+            line.endWidth = 0.02f;
+            line.startColor = new Color(0.25f, 1f, 0.35f, 0.75f);
+            line.endColor = new Color(0.75f, 1f, 0.75f, 0.4f);
+            line.sortingOrder = 57;
+            AutoDestroyAfterDelay autoDestroy = lineObject.AddComponent<AutoDestroyAfterDelay>();
+            autoDestroy.SetLifetime(0.18f);
         }
 
         private void AwardKillExperience(TowerController killer)

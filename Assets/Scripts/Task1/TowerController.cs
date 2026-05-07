@@ -179,6 +179,8 @@ namespace EvoTowers.Task1
             RefreshStats();
             ApplyVisuals(evolution.sprite, evolution.visualPrefab, evolution.accentColor, config.visualScale);
             PlayPulseEffect(evolution.accentColor, 0.75f, 1.45f);
+            GameManager.Instance.NotifyTowerEvolved();
+            GameAudio.Instance?.PlayEvolve();
             GameManager.Instance.NotifyStateChanged();
             return true;
         }
@@ -357,6 +359,7 @@ namespace EvoTowers.Task1
             }
 
             float bonusMultiplier = runtimeStats.CritChance > 0f && Random.value < runtimeStats.CritChance ? 2f : 1f;
+            GameAudio.Instance?.PlayAttack();
             target.TakeDamage(damage * bonusMultiplier, this);
             AddHitExperience(target);
             PlayHitEffect(target.transform.position, evolution != null ? evolution.accentColor : Color.white, GetHitEffectScale());

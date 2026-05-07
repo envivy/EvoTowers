@@ -20,8 +20,11 @@ Generated runtime files are written to:
 2. Put `Luban.dll` at `Tools/Luban/Luban/Luban.dll`.
 3. Let Unity resolve the `com.code-philosophy.luban` package from `Packages/manifest.json`.
 4. Run `Tools/Luban/Gen.bat`, or use Unity menu `EvoTowers/Luban/Generate Tables`.
+5. To push tower table values into the current playable scene, use Unity menu `EvoTowers/Luban/Import Tower Configs To Battle Scene`.
 
 The generated JSON files are under `Resources`, so runtime code can load them with `Resources.Load<TextAsset>`.
+
+The current prototype still stores playable tower configs on `GameManager.towerConfigs`. `Import Tower Configs To Battle Scene` reads `Datas/Tower.csv` and updates `Assets/Scenes/Battle.unity` with those values.
 
 ## Adding Tables
 

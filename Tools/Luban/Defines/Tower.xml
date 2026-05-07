@@ -2,9 +2,20 @@
 <module name="EvoTowers.Tables">
   <bean name="Tower">
     <var name="Id" type="int" />
+    <var name="Type" type="string" />
     <var name="Name" type="string" />
+    <var name="Cost" type="int" />
     <var name="Damage" type="float" />
     <var name="Range" type="float" />
     <var name="AttackInterval" type="float" />
+    <var name="UseDamageOverTime" type="bool" />
+    <var name="DotDamagePerSecond" type="float" />
+    <var name="DotDuration" type="float" />
+    <var name="SpritePath" type="string" />
+    <var name="VisualPrefabPath" type="string" />
+    <var name="ProjectilePrefabPath" type="string" />
+    <var name="AttackEffectPrefabPath" type="string" />
+    <var name="VisualScaleX" type="float" />
+    <var name="VisualScaleY" type="float" />
   </bean>
 </module>

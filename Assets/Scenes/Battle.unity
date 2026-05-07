@@ -7990,7 +7990,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waveManager: {fileID: 2035779739}
---- !u!114 &2035779735
+--- !u!114 &2035779740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2035779733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4613869bc67a4c53ad2b5fa017b932fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: 0.35--- !u!114 &2035779735
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8027,7 +8039,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d167d7bb659671248a576c629545a771, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingGold: 500
+  startingGold: 180
   startingLives: 20
   towerConfigs:
   - type: 0
@@ -8037,8 +8049,8 @@ MonoBehaviour:
     damage: 22
     attackInterval: 0.75
     useDamageOverTime: 0
-    dotDamagePerSecond: 10
-    dotDuration: 2
+    dotDamagePerSecond: 0
+    dotDuration: 0
     sprite: {fileID: 21300000, guid: 46fbee969baff1246be58c885a4f1a26, type: 3}
     visualPrefab: {fileID: 1319213952492206, guid: e44f17a04e6ba8c47b1bb2ceaf53687f, type: 3}
     projectilePrefab: {fileID: 1773239443742678, guid: a2c90ce4856306a46abea89f896296f7, type: 3}
@@ -8065,35 +8077,136 @@ MonoBehaviour:
     damage: 24
     attackInterval: 0.9
     useDamageOverTime: 0
-    dotDamagePerSecond: 10
-    dotDuration: 2
+    dotDamagePerSecond: 0
+    dotDuration: 0
     sprite: {fileID: 0}
     visualPrefab: {fileID: 1256606350667486, guid: 8a9fa32395ab62a4a98b951d6ef97cd1, type: 3}
     projectilePrefab: {fileID: 1304115909234758, guid: 21797c029f050014ebf0cfe25ff0f5c5, type: 3}
     attackEffectPrefab: {fileID: 1181475092394266, guid: f8c2ff1d5fe860b49b85da78fcd2d574, type: 3}
     visualScale: {x: 1, y: 1}
+  - type: 0
+    displayName: Longbow Tower
+    cost: 120
+    range: 3.35
+    damage: 30
+    attackInterval: 1.05
+    useDamageOverTime: 0
+    dotDamagePerSecond: 0
+    dotDuration: 0
+    sprite: {fileID: 21300000, guid: 46fbee969baff1246be58c885a4f1a26, type: 3}
+    visualPrefab: {fileID: 1319213952492206, guid: ab3abfa0f57be7940af85500cbbd869d, type: 3}
+    projectilePrefab: {fileID: 1773239443742678, guid: 4fee424cb86f2604e94df1eaa00cd771, type: 3}
+    attackEffectPrefab: {fileID: 1961090854306104, guid: 4f5a3659990fc5541bb9a35d2973c414, type: 3}
+    visualScale: {x: 1, y: 1}
+  - type: 1
+    displayName: Ember Tower
+    cost: 170
+    range: 2.7
+    damage: 26
+    attackInterval: 1
+    useDamageOverTime: 1
+    dotDamagePerSecond: 14
+    dotDuration: 3
+    sprite: {fileID: 0}
+    visualPrefab: {fileID: 1957272240662774, guid: a7cf1c953775cc54eb84d274a4bf9d15, type: 3}
+    projectilePrefab: {fileID: 1514917511529340, guid: a1f554aafddd9984ba3389156e486bfb, type: 3}
+    attackEffectPrefab: {fileID: 1193389879184502, guid: 9790f210f47626a4e96815ec106ac686, type: 3}
+    visualScale: {x: 1, y: 1}
+  - type: 2
+    displayName: Arcane Tower
+    cost: 160
+    range: 2.8
+    damage: 36
+    attackInterval: 1.15
+    useDamageOverTime: 0
+    dotDamagePerSecond: 0
+    dotDuration: 0
+    sprite: {fileID: 0}
+    visualPrefab: {fileID: 1256606350667486, guid: 45c545a263f1c82488afd3dcb3cfbc4d, type: 3}
+    projectilePrefab: {fileID: 1304115909234758, guid: ca6f2abc4cda1d144ba6d477ca5f1ce8, type: 3}
+    attackEffectPrefab: {fileID: 1181475092394266, guid: 95ce170505ecb39468487a495568cb18, type: 3}
+    visualScale: {x: 1, y: 1}
   enemyConfigs:
   - type: 0
-    displayName: Basic Enemy
-    maxHealth: 70
-    moveSpeed: 1.85
-    goldReward: 20
+    displayName: Grunt
+    maxHealth: 100
+    moveSpeed: 1
+    goldReward: 5
     lifeDamage: 1
+    armorPercent: 0
     isElite: 0
+    isBoss: 0
+    isHealer: 0
+    healRange: 1.45
+    healInterval: 3
+    healAmount: 20
     sprite: {fileID: 21300000, guid: 53b4c9813c52a9541b18e04a45042c7c, type: 3}
     animatorController: {fileID: 0}
     visualScale: {x: 0.75, y: 0.75}
   - type: 1
-    displayName: Fast Enemy
-    maxHealth: 45
-    moveSpeed: 2.75
-    goldReward: 25
+    displayName: Runner
+    maxHealth: 70
+    moveSpeed: 1.6
+    goldReward: 6
     lifeDamage: 1
-    isElite: 1
+    armorPercent: 0
+    isElite: 0
+    isBoss: 0
+    isHealer: 0
+    healRange: 1.45
+    healInterval: 3
+    healAmount: 20
     sprite: {fileID: 21300000, guid: 6affd12209427634892d7244d0affa19, type: 3}
     animatorController: {fileID: 0}
     visualScale: {x: 0.65, y: 0.65}
-  commanderDefinitions:
+  - type: 2
+    displayName: Armored
+    maxHealth: 260
+    moveSpeed: 0.75
+    goldReward: 10
+    lifeDamage: 2
+    armorPercent: 0.2
+    isElite: 1
+    isBoss: 0
+    isHealer: 0
+    healRange: 1.45
+    healInterval: 3
+    healAmount: 20
+    sprite: {fileID: 21300000, guid: 9add69bec54b4d04fb76b69ea853169b, type: 3}
+    animatorController: {fileID: 0}
+    visualScale: {x: 0.9, y: 0.9}
+  - type: 3
+    displayName: Healer
+    maxHealth: 120
+    moveSpeed: 0.9
+    goldReward: 12
+    lifeDamage: 1
+    armorPercent: 0
+    isElite: 0
+    isBoss: 0
+    isHealer: 1
+    healRange: 1.45
+    healInterval: 3
+    healAmount: 20
+    sprite: {fileID: 21300000, guid: ada9cbc4a1e855e48b0f6b6a6b7fa484, type: 3}
+    animatorController: {fileID: 0}
+    visualScale: {x: 0.8, y: 0.8}
+  - type: 4
+    displayName: Molten Behemoth
+    maxHealth: 3800
+    moveSpeed: 0.45
+    goldReward: 0
+    lifeDamage: 10
+    armorPercent: 0.15
+    isElite: 1
+    isBoss: 1
+    isHealer: 0
+    healRange: 1.45
+    healInterval: 3
+    healAmount: 20
+    sprite: {fileID: 21300000, guid: 3b07ed9c0dcbab146aad584aeae3954b, type: 3}
+    animatorController: {fileID: 0}
+    visualScale: {x: 1.45, y: 1.45}  commanderDefinitions:
   - {fileID: 11400000, guid: 04641ec1c4540e54aa893ce87a3160f8, type: 2}
   - {fileID: 11400000, guid: 6eb1a1fdce820d249901318e33ce1476, type: 2}
   upgradeDefinitions:
@@ -8346,32 +8459,143 @@ MonoBehaviour:
   enemyPrefab: {fileID: 7419372738981637259, guid: 401304587d6929c489fa2d9d835342f1, type: 3}
   waves:
   - displayName: Wave 1
-    groups:
-    - enemyType: 0
-      count: 10
-      interval: 0.7
-      delayBeforeGroup: 0
-  - displayName: Wave 2
-    groups:
-    - enemyType: 0
-      count: 8
-      interval: 0.65
-      delayBeforeGroup: 0
-    - enemyType: 1
-      count: 5
-      interval: 0.55
-      delayBeforeGroup: 1
-  - displayName: Wave 3
+    clearReward: 25
+    isBossWave: 0
+    triggersUpgradeDraft: 0
     groups:
     - enemyType: 0
       count: 12
-      interval: 0.55
+      interval: 1
+      delayBeforeGroup: 0
+  - displayName: Wave 2
+    clearReward: 30
+    isBossWave: 0
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 0
+      count: 18
+      interval: 0.9
+      delayBeforeGroup: 0
+  - displayName: Wave 3
+    clearReward: 35
+    isBossWave: 0
+    triggersUpgradeDraft: 1
+    groups:
+    - enemyType: 0
+      count: 14
+      interval: 0.85
       delayBeforeGroup: 0
     - enemyType: 1
       count: 8
+      interval: 0.65
+      delayBeforeGroup: 3
+  - displayName: Wave 4
+    clearReward: 40
+    isBossWave: 0
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 2
+      count: 8
+      interval: 1.4
+      delayBeforeGroup: 0
+  - displayName: Wave 5
+    clearReward: 45
+    isBossWave: 0
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 0
+      count: 16
+      interval: 0.75
+      delayBeforeGroup: 0
+    - enemyType: 1
+      count: 10
+      interval: 0.55
+      delayBeforeGroup: 2
+    - enemyType: 2
+      count: 5
+      interval: 1.2
+      delayBeforeGroup: 5
+  - displayName: Wave 6
+    clearReward: 50
+    isBossWave: 0
+    triggersUpgradeDraft: 1
+    groups:
+    - enemyType: 0
+      count: 28
       interval: 0.45
-      delayBeforeGroup: 1
-  enemyRoot: {fileID: 375821115}
+      delayBeforeGroup: 0
+    - enemyType: 3
+      count: 3
+      interval: 3
+      delayBeforeGroup: 4
+  - displayName: Wave 7
+    clearReward: 50
+    isBossWave: 0
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 1
+      count: 18
+      interval: 0.45
+      delayBeforeGroup: 0
+    - enemyType: 2
+      count: 9
+      interval: 1
+      delayBeforeGroup: 3
+  - displayName: Wave 8
+    clearReward: 55
+    isBossWave: 0
+    triggersUpgradeDraft: 1
+    groups:
+    - enemyType: 0
+      count: 24
+      interval: 0.45
+      delayBeforeGroup: 0
+    - enemyType: 1
+      count: 14
+      interval: 0.4
+      delayBeforeGroup: 2
+    - enemyType: 2
+      count: 8
+      interval: 0.9
+      delayBeforeGroup: 5
+    - enemyType: 3
+      count: 3
+      interval: 2.5
+      delayBeforeGroup: 7
+  - displayName: Wave 9
+    clearReward: 60
+    isBossWave: 0
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 2
+      count: 14
+      interval: 0.75
+      delayBeforeGroup: 0
+    - enemyType: 3
+      count: 4
+      interval: 2.2
+      delayBeforeGroup: 3
+    - enemyType: 1
+      count: 12
+      interval: 0.35
+      delayBeforeGroup: 8
+  - displayName: Wave 10 - Boss
+    clearReward: 0
+    isBossWave: 1
+    triggersUpgradeDraft: 0
+    groups:
+    - enemyType: 4
+      count: 1
+      interval: 0
+      delayBeforeGroup: 0
+    - enemyType: 0
+      count: 16
+      interval: 0.55
+      delayBeforeGroup: 4
+    - enemyType: 1
+      count: 12
+      interval: 0.45
+      delayBeforeGroup: 10  enemyRoot: {fileID: 375821115}
 --- !u!1 &2079571695
 GameObject:
   m_ObjectHideFlags: 0

@@ -37,6 +37,21 @@ namespace EvoTowers.Task1
         public IReadOnlyList<EnemyHealth> ActiveEnemies => activeEnemies;
         public IReadOnlyList<UpgradeDefinition> OwnedUpgrades => ownedUpgrades;
         public UpgradeDraftResult CurrentUpgradeDraft { get; private set; }
+        public float RunTime { get; private set; }
+        public int Kills { get; private set; }
+        public int TowersBuilt { get; private set; }
+        public int TowersEvolved { get; private set; }
+        public int CompletedWaves { get; private set; }
+        public int FailedWave { get; private set; }
+        public bool BossAppeared { get; private set; }
+
+        private void Update()
+        {
+            if (!IsGameOver && FlowState != GameFlowState.Upgrade)
+            {
+                RunTime += Time.deltaTime;
+            }
+        }
 
         private void Awake()
         {
@@ -114,6 +129,7 @@ namespace EvoTowers.Task1
                 IsVictory = false;
                 FlowState = GameFlowState.GameOver;
                 StateChanged?.Invoke();
+                GameAudio.Instance?.PlayFailure();
                 GameOver?.Invoke();
             }
         }
@@ -129,6 +145,7 @@ namespace EvoTowers.Task1
             IsVictory = true;
             FlowState = GameFlowState.Victory;
             StateChanged?.Invoke();
+            GameAudio.Instance?.PlayVictory();
             Victory?.Invoke();
         }
 
@@ -265,6 +282,55 @@ namespace EvoTowers.Task1
             StateChanged?.Invoke();
         }
 
+        public void NotifyEnemyKilled(EnemyHealth enemy)
+        {
+            Kills++;
+            StateChanged?.Invoke();
+        }
+
+        public void NotifyTowerBuilt()
+        {
+            TowersBuilt++;
+            StateChanged?.Invoke();
+        }
+
+        public void NotifyTowerEvolved()
+        {
+            TowersEvolved++;
+            StateChanged?.Invoke();
+        }
+
+        public void NotifyWaveCompleted(int waveNumber, int clearReward)
+        {
+            CompletedWaves = Mathf.Max(CompletedWaves, waveNumber);
+            AddGold(clearReward);
+        }
+
+        public void NotifyWaveStarted(int waveNumber, bool isBossWave)
+        {
+            if (isBossWave)
+            {
+                BossAppeared = true;
+            }
+
+            StateChanged?.Invoke();
+        }
+
+        public void NotifyWaveFailed(int waveNumber)
+        {
+            FailedWave = Mathf.Max(FailedWave, waveNumber);
+        }
+
+        public string BuildSettlementSummary()
+        {
+            string result = IsVictory ? "Victory" : "Failure";
+            int wave = IsVictory ? CompletedWaves : Mathf.Max(FailedWave, CompletedWaves + 1);
+            string boss = BossAppeared ? "Boss appeared" : "Boss not reached";
+            string commander = ActiveCommander != null ? ActiveCommander.displayName : "None";
+            string suggestion = IsVictory ? "Boss defeated. Your build held." : BuildFailureSuggestion();
+            return $"{result}\nTime: {FormatTime(RunTime)}\nWaves: {wave}\nLives: {Lives}/20\nKills: {Kills}\nTowers: {TowersBuilt}\nEvolved: {TowersEvolved}\nCommander: {commander}\n{boss}\n{suggestion}";
+        }
+
         public void UnregisterEnemy(EnemyHealth enemy)
         {
             if (enemy == null)
@@ -281,6 +347,34 @@ namespace EvoTowers.Task1
         public IReadOnlyList<TowerConfig> GetTowerConfigs()
         {
             return towerConfigs;
+        }
+
+        private string BuildFailureSuggestion()
+        {
+            if (BossAppeared)
+            {
+                return "Suggestion: evolve Sniper or Burning branches before the Boss.";
+            }
+
+            if (CompletedWaves < 4)
+            {
+                return "Suggestion: build 2-3 towers before early waves snowball.";
+            }
+
+            if (TowersEvolved <= 0)
+            {
+                return "Suggestion: select a branch evolution by the mid game.";
+            }
+
+            return "Suggestion: add Frost, Blast Flame, or Chain Lightning for mixed waves.";
+        }
+
+        private static string FormatTime(float seconds)
+        {
+            int totalSeconds = Mathf.FloorToInt(seconds);
+            int minutes = totalSeconds / 60;
+            int remainder = totalSeconds % 60;
+            return $"{minutes:00}:{remainder:00}";
         }
 
         public TowerRuntimeStats GetRuntimeStats(TowerConfig config)

@@ -1,5 +1,9 @@
-##var,Id,Name,Damage,Range,AttackInterval
-##type,int,string,float,float,float
-##group,c,c,c,c,c
-1,Arrow Tower,12,4.5,0.75
-2,Flame Tower,7,3.5,0.5
+##var,Id,Type,Name,Cost,Damage,Range,AttackInterval,UseDamageOverTime,DotDamagePerSecond,DotDuration,SpritePath,VisualPrefabPath,ProjectilePrefabPath,AttackEffectPrefabPath,VisualScaleX,VisualScaleY
+##type,int,string,string,int,float,float,float,bool,float,float,string,string,string,string,float,float
+##group,c,c,c,c,c,c,c,c,c,c,c,c,c,c,c,c,c
+1,Arrow,Arrow Tower,100,22,2.9,0.75,false,0,0,Assets/Arts/Pictures/NormalMordel/Game/1/TArrow-hd.png,Assets/Arts/Prefabs/Game/Tower/ID1/TowerSet/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID1/Bullect/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID1/Effect/1.prefab,1,1
+2,Flame,Flame Tower,150,34,2.45,1.25,true,10,2,,Assets/Arts/Prefabs/Game/Tower/ID2/TowerSet/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID2/Bullect/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID2/Effect/1.prefab,1,1
+3,Magic,Magic Tower,130,24,2.65,0.9,false,0,0,,Assets/Arts/Prefabs/Game/Tower/ID3/TowerSet/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID3/Bullect/1.prefab,Assets/Arts/Prefabs/Game/Tower/ID3/Effect/1.prefab,1,1
+4,Arrow,Longbow Tower,120,30,3.35,1.05,false,0,0,Assets/Arts/Pictures/NormalMordel/Game/1/TArrow-hd.png,Assets/Arts/Prefabs/Game/Tower/ID1/TowerSet/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID1/Bullect/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID1/Effect/2.prefab,1,1
+5,Flame,Ember Tower,170,26,2.7,1,true,14,3,,Assets/Arts/Prefabs/Game/Tower/ID2/TowerSet/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID2/Bullect/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID2/Effect/2.prefab,1,1
+6,Magic,Arcane Tower,160,36,2.8,1.15,false,0,0,,Assets/Arts/Prefabs/Game/Tower/ID3/TowerSet/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID3/Bullect/2.prefab,Assets/Arts/Prefabs/Game/Tower/ID3/Effect/2.prefab,1,1

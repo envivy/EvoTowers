@@ -16,6 +16,7 @@ namespace EvoTowers.Task1
         private bool isSpawning;
         private bool hasStarted;
         private bool waveFullyResolved;
+        private WaveDefinition activeWave;
 
         public int CurrentWaveNumber => Mathf.Clamp(currentWaveIndex + 1, 0, waves.Count);
         public int TotalWaves => waves.Count;
@@ -47,6 +48,16 @@ namespace EvoTowers.Task1
             hasStarted = true;
             waveFullyResolved = false;
             currentWaveIndex++;
+            activeWave = waves[currentWaveIndex];
+            GameManager.Instance?.NotifyWaveStarted(CurrentWaveNumber, activeWave.isBossWave);
+            if (activeWave.isBossWave)
+            {
+                GameAudio.Instance?.PlayBoss();
+            }
+            else
+            {
+                GameAudio.Instance?.PlayWave();
+            }
             StartCoroutine(SpawnWave(waves[currentWaveIndex]));
         }
 
@@ -102,6 +113,7 @@ namespace EvoTowers.Task1
             health.Initialize(config);
             follower.Initialize(route, config);
             health.Resolved += HandleEnemyResolved;
+            health.BossHealthThresholdReached += HandleBossHealthThresholdReached;
 
             livingEnemies++;
             GameManager.Instance.RegisterEnemy(health);
@@ -112,6 +124,7 @@ namespace EvoTowers.Task1
             if (enemy != null)
             {
                 enemy.Resolved -= HandleEnemyResolved;
+                enemy.BossHealthThresholdReached -= HandleBossHealthThresholdReached;
             }
 
             livingEnemies = Mathf.Max(0, livingEnemies - 1);
@@ -127,14 +140,46 @@ namespace EvoTowers.Task1
             }
 
             waveFullyResolved = true;
+            if (activeWave != null)
+            {
+                GameManager.Instance?.NotifyWaveCompleted(CurrentWaveNumber, activeWave.clearReward);
+            }
 
             if (HasMoreWaves)
             {
-                GameManager.Instance?.OpenUpgradeDraft(3);
+                if (activeWave != null && activeWave.triggersUpgradeDraft)
+                {
+                    GameManager.Instance?.OpenUpgradeDraft(3);
+                }
+                else
+                {
+                    GameManager.Instance?.CloseUpgradeDraftToPrepare();
+                }
             }
             else
             {
                 GameManager.Instance?.WinGame();
+            }
+        }
+
+        private void HandleBossHealthThresholdReached(EnemyHealth boss, float threshold)
+        {
+            if (boss == null || !boss.IsAlive)
+            {
+                return;
+            }
+
+            StartCoroutine(SpawnBossSupport(threshold));
+        }
+
+        private IEnumerator SpawnBossSupport(float threshold)
+        {
+            EnemyType supportType = threshold <= 0.25f ? EnemyType.Fast : EnemyType.Basic;
+            int count = threshold <= 0.5f ? 6 : 4;
+            for (int i = 0; i < count; i++)
+            {
+                SpawnEnemy(supportType);
+                yield return new WaitForSeconds(0.4f);
             }
         }
     }

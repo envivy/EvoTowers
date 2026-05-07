@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EvoTowers.EditorTools;
 using EvoTowers.Task1;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -45,6 +46,7 @@ namespace EvoTowers.Task1.Editor
 
             GameManager gameManager = managers.AddComponent<GameManager>();
             BuildManager buildManager = managers.AddComponent<BuildManager>();
+            managers.AddComponent<GameAudio>();
             managers.AddComponent<TowerSelectionManager>();
             WaveManager waveManager = managers.AddComponent<WaveManager>();
             Week2BattleFlow battleFlow = managers.AddComponent<Week2BattleFlow>();
@@ -316,35 +318,23 @@ namespace EvoTowers.Task1.Editor
         private static void ConfigureGameManager(SerializedObject so)
         {
             EnsureFolder(DataFolder);
-            so.FindProperty("startingGold").intValue = 500;
+            so.FindProperty("startingGold").intValue = 180;
             so.FindProperty("startingLives").intValue = 20;
 
-            SerializedProperty towers = so.FindProperty("towerConfigs");
-            towers.arraySize = 3;
-            SetTower(towers.GetArrayElementAtIndex(0), TowerType.Arrow, "Arrow Tower", 100, 2.9f, 22f, 0.75f, false,
-                LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/TArrow-hd.png"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID1/TowerSet/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID1/Bullect/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID1/Effect/1.prefab"));
-
-            SetTower(towers.GetArrayElementAtIndex(1), TowerType.Flame, "Flame Tower", 150, 2.45f, 34f, 1.25f, true,
-                null,
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID2/TowerSet/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID2/Bullect/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID2/Effect/1.prefab"));
-
-            SetTower(towers.GetArrayElementAtIndex(2), TowerType.Magic, "Magic Tower", 130, 2.65f, 24f, 0.9f, false,
-                null,
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID3/TowerSet/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID3/Bullect/1.prefab"),
-                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Arts/Prefabs/Game/Tower/ID3/Effect/1.prefab"));
+            LubanTowerConfigImporter.ApplyTowerConfigs(so);
 
             SerializedProperty enemies = so.FindProperty("enemyConfigs");
-            enemies.arraySize = 2;
-            SetEnemy(enemies.GetArrayElementAtIndex(0), EnemyType.Basic, "Basic Enemy", 70f, 1.85f, 20, 1,
+            enemies.arraySize = 5;
+            SetEnemy(enemies.GetArrayElementAtIndex(0), EnemyType.Basic, "Grunt", 100f, 1.0f, 5, 1, 0f, false, false,
                 LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/Monster/1-1.PNG"), new Vector2(0.75f, 0.75f));
-            SetEnemy(enemies.GetArrayElementAtIndex(1), EnemyType.Fast, "Fast Enemy", 45f, 2.75f, 25, 1,
+            SetEnemy(enemies.GetArrayElementAtIndex(1), EnemyType.Fast, "Runner", 70f, 1.6f, 6, 1, 0f, false, false,
                 LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/Monster/2-1.PNG"), new Vector2(0.65f, 0.65f));
+            SetEnemy(enemies.GetArrayElementAtIndex(2), EnemyType.Armored, "Armored", 260f, 0.75f, 10, 2, 0.2f, false, false,
+                LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/Monster/3-1.PNG"), new Vector2(0.9f, 0.9f));
+            SetEnemy(enemies.GetArrayElementAtIndex(3), EnemyType.Healer, "Healer", 120f, 0.9f, 12, 1, 0f, true, false,
+                LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/Monster/4-1.PNG"), new Vector2(0.8f, 0.8f));
+            SetEnemy(enemies.GetArrayElementAtIndex(4), EnemyType.Boss, "Molten Behemoth", 3800f, 0.45f, 0, 10, 0.15f, false, true,
+                LoadSprite("Assets/Arts/Pictures/NormalMordel/Game/1/Monster/12-1.PNG"), new Vector2(1.45f, 1.45f));
 
             SerializedProperty commanders = so.FindProperty("commanderDefinitions");
             List<CommanderDefinition> commanderDefinitions = EnsureCommanderDefinitions();
@@ -365,25 +355,7 @@ namespace EvoTowers.Task1.Editor
             ConfigureEvolutions(so.FindProperty("towerEvolutions"));
         }
 
-        private static void SetTower(SerializedProperty property, TowerType type, string name, int cost, float range, float damage, float interval, bool dot, Sprite sprite, GameObject visual, GameObject projectile, GameObject effect)
-        {
-            property.FindPropertyRelative("type").enumValueIndex = (int)type;
-            property.FindPropertyRelative("displayName").stringValue = name;
-            property.FindPropertyRelative("cost").intValue = cost;
-            property.FindPropertyRelative("range").floatValue = range;
-            property.FindPropertyRelative("damage").floatValue = damage;
-            property.FindPropertyRelative("attackInterval").floatValue = interval;
-            property.FindPropertyRelative("useDamageOverTime").boolValue = dot;
-            property.FindPropertyRelative("dotDamagePerSecond").floatValue = 10f;
-            property.FindPropertyRelative("dotDuration").floatValue = 2f;
-            property.FindPropertyRelative("sprite").objectReferenceValue = sprite;
-            property.FindPropertyRelative("visualPrefab").objectReferenceValue = visual;
-            property.FindPropertyRelative("projectilePrefab").objectReferenceValue = projectile;
-            property.FindPropertyRelative("attackEffectPrefab").objectReferenceValue = effect;
-            property.FindPropertyRelative("visualScale").vector2Value = Vector2.one;
-        }
-
-        private static void SetEnemy(SerializedProperty property, EnemyType type, string name, float health, float speed, int reward, int leak, Sprite sprite, Vector2 scale)
+        private static void SetEnemy(SerializedProperty property, EnemyType type, string name, float health, float speed, int reward, int leak, float armor, bool healer, bool boss, Sprite sprite, Vector2 scale)
         {
             property.FindPropertyRelative("type").enumValueIndex = (int)type;
             property.FindPropertyRelative("displayName").stringValue = name;
@@ -391,7 +363,13 @@ namespace EvoTowers.Task1.Editor
             property.FindPropertyRelative("moveSpeed").floatValue = speed;
             property.FindPropertyRelative("goldReward").intValue = reward;
             property.FindPropertyRelative("lifeDamage").intValue = leak;
-            property.FindPropertyRelative("isElite").boolValue = type == EnemyType.Fast;
+            property.FindPropertyRelative("armorPercent").floatValue = armor;
+            property.FindPropertyRelative("isElite").boolValue = type == EnemyType.Armored || type == EnemyType.Boss;
+            property.FindPropertyRelative("isBoss").boolValue = boss;
+            property.FindPropertyRelative("isHealer").boolValue = healer;
+            property.FindPropertyRelative("healRange").floatValue = 1.45f;
+            property.FindPropertyRelative("healInterval").floatValue = 3f;
+            property.FindPropertyRelative("healAmount").floatValue = 20f;
             property.FindPropertyRelative("sprite").objectReferenceValue = sprite;
             property.FindPropertyRelative("visualScale").vector2Value = scale;
         }
@@ -524,15 +502,25 @@ namespace EvoTowers.Task1.Editor
         private static void ConfigureWaves(SerializedObject so)
         {
             SerializedProperty waves = so.FindProperty("waves");
-            waves.arraySize = 3;
-            SetWave(waves.GetArrayElementAtIndex(0), "Wave 1", new[] { new WaveGroupSpec(EnemyType.Basic, 10, 0.7f, 0f) });
-            SetWave(waves.GetArrayElementAtIndex(1), "Wave 2", new[] { new WaveGroupSpec(EnemyType.Basic, 8, 0.65f, 0f), new WaveGroupSpec(EnemyType.Fast, 5, 0.55f, 1f) });
-            SetWave(waves.GetArrayElementAtIndex(2), "Wave 3", new[] { new WaveGroupSpec(EnemyType.Basic, 12, 0.55f, 0f), new WaveGroupSpec(EnemyType.Fast, 8, 0.45f, 1f) });
+            waves.arraySize = 10;
+            SetWave(waves.GetArrayElementAtIndex(0), "Wave 1", 25, false, false, new[] { new WaveGroupSpec(EnemyType.Basic, 12, 1.0f, 0f) });
+            SetWave(waves.GetArrayElementAtIndex(1), "Wave 2", 30, false, false, new[] { new WaveGroupSpec(EnemyType.Basic, 18, 0.9f, 0f) });
+            SetWave(waves.GetArrayElementAtIndex(2), "Wave 3", 35, false, true, new[] { new WaveGroupSpec(EnemyType.Basic, 14, 0.85f, 0f), new WaveGroupSpec(EnemyType.Fast, 8, 0.65f, 3f) });
+            SetWave(waves.GetArrayElementAtIndex(3), "Wave 4", 40, false, false, new[] { new WaveGroupSpec(EnemyType.Armored, 8, 1.4f, 0f) });
+            SetWave(waves.GetArrayElementAtIndex(4), "Wave 5", 45, false, false, new[] { new WaveGroupSpec(EnemyType.Basic, 16, 0.75f, 0f), new WaveGroupSpec(EnemyType.Fast, 10, 0.55f, 2f), new WaveGroupSpec(EnemyType.Armored, 5, 1.2f, 5f) });
+            SetWave(waves.GetArrayElementAtIndex(5), "Wave 6", 50, false, true, new[] { new WaveGroupSpec(EnemyType.Basic, 28, 0.45f, 0f), new WaveGroupSpec(EnemyType.Healer, 3, 3.0f, 4f) });
+            SetWave(waves.GetArrayElementAtIndex(6), "Wave 7", 50, false, false, new[] { new WaveGroupSpec(EnemyType.Fast, 18, 0.45f, 0f), new WaveGroupSpec(EnemyType.Armored, 9, 1.0f, 3f) });
+            SetWave(waves.GetArrayElementAtIndex(7), "Wave 8", 55, false, true, new[] { new WaveGroupSpec(EnemyType.Basic, 24, 0.45f, 0f), new WaveGroupSpec(EnemyType.Fast, 14, 0.4f, 2f), new WaveGroupSpec(EnemyType.Armored, 8, 0.9f, 5f), new WaveGroupSpec(EnemyType.Healer, 3, 2.5f, 7f) });
+            SetWave(waves.GetArrayElementAtIndex(8), "Wave 9", 60, false, false, new[] { new WaveGroupSpec(EnemyType.Armored, 14, 0.75f, 0f), new WaveGroupSpec(EnemyType.Healer, 4, 2.2f, 3f), new WaveGroupSpec(EnemyType.Fast, 12, 0.35f, 8f) });
+            SetWave(waves.GetArrayElementAtIndex(9), "Wave 10 - Boss", 0, true, false, new[] { new WaveGroupSpec(EnemyType.Boss, 1, 0f, 0f), new WaveGroupSpec(EnemyType.Basic, 16, 0.55f, 4f), new WaveGroupSpec(EnemyType.Fast, 12, 0.45f, 10f) });
         }
 
-        private static void SetWave(SerializedProperty property, string name, WaveGroupSpec[] groups)
+        private static void SetWave(SerializedProperty property, string name, int clearReward, bool bossWave, bool upgradeDraft, WaveGroupSpec[] groups)
         {
             property.FindPropertyRelative("displayName").stringValue = name;
+            property.FindPropertyRelative("clearReward").intValue = clearReward;
+            property.FindPropertyRelative("isBossWave").boolValue = bossWave;
+            property.FindPropertyRelative("triggersUpgradeDraft").boolValue = upgradeDraft;
             SerializedProperty groupList = property.FindPropertyRelative("groups");
             groupList.arraySize = groups.Length;
 

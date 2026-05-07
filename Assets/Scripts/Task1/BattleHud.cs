@@ -49,12 +49,14 @@ namespace EvoTowers.Task1
 
         private readonly StringBuilder builder = new StringBuilder(64);
         private readonly List<UpgradeDefinition> currentDraftOptions = new List<UpgradeDefinition>();
+        private readonly HashSet<string> shownHints = new HashSet<string>();
         private bool hasUpgradeSelection;
         private Coroutine feedbackCoroutine;
         private bool gameEventsBound;
         private bool buildEventsBound;
         private bool selectionEventsBound;
         private TowerEvolutionDefinition selectedEvolution;
+        private bool isPaused;
 
         private void Awake()
         {
@@ -69,6 +71,7 @@ namespace EvoTowers.Task1
             BindButton(optionButtonA, () => SelectUpgrade(0));
             BindButton(optionButtonB, () => SelectUpgrade(1));
             BindButton(optionButtonC, () => SelectUpgrade(2));
+            ShowHint("Build your first tower, then choose a commander to begin.");
         }
 
         private void Start()
@@ -95,6 +98,11 @@ namespace EvoTowers.Task1
             if (!gameEventsBound || !buildEventsBound)
             {
                 TryBindEvents();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                TogglePause();
             }
         }
 
@@ -163,6 +171,7 @@ namespace EvoTowers.Task1
 
         private void StartWave()
         {
+            GameAudio.Instance?.PlayButton();
             if (GameManager.Instance == null || waveManager == null)
             {
                 return;
@@ -174,18 +183,30 @@ namespace EvoTowers.Task1
             }
 
             waveManager.StartNextWave();
+            if (waveManager.CurrentWaveNumber == 1)
+            {
+                ShowHint("Enemies follow the road. Protect the goal.");
+            }
+
+            if (waveManager.CurrentWaveNumber == 10)
+            {
+                ShowHint("Boss incoming. Spend gold and evolve your key towers.");
+            }
+
             week2BattleFlow?.NotifyWaveStarted();
             Refresh();
         }
 
         private void SelectTower(TowerType type)
         {
+            GameAudio.Instance?.PlayButton();
             BuildManager.Instance?.SelectTower((int)type);
             Refresh();
         }
 
         private void SelectCommander(CommanderId commanderId)
         {
+            GameAudio.Instance?.PlayButton();
             GameManager.Instance?.SelectCommander(commanderId);
             Refresh();
         }
@@ -198,6 +219,7 @@ namespace EvoTowers.Task1
             }
 
             hasUpgradeSelection = true;
+            GameAudio.Instance?.PlayButton();
             GameManager.Instance?.ApplyUpgrade(currentDraftOptions[index]);
         }
 
@@ -255,7 +277,7 @@ namespace EvoTowers.Task1
         {
             SetText(resultText, "Failure");
             SetText(resultTitleText, "Failure");
-            SetText(resultSummaryText, "Your lives reached zero.");
+            SetText(resultSummaryText, GameManager.Instance != null ? GameManager.Instance.BuildSettlementSummary() : "Your lives reached zero.");
             Refresh();
         }
 
@@ -263,7 +285,7 @@ namespace EvoTowers.Task1
         {
             SetText(resultText, "Victory");
             SetText(resultTitleText, "Victory");
-            SetText(resultSummaryText, "All waves have been cleared.");
+            SetText(resultSummaryText, GameManager.Instance != null ? GameManager.Instance.BuildSettlementSummary() : "All waves have been cleared.");
             Refresh();
         }
 
@@ -278,6 +300,38 @@ namespace EvoTowers.Task1
             Time.timeScale = 1f;
             string targetScene = Application.CanStreamedLevelBeLoaded("SampleScene") ? "SampleScene" : SceneManager.GetActiveScene().name;
             SceneManager.LoadScene(targetScene);
+        }
+
+        private void TogglePause()
+        {
+            if (GameManager.Instance != null && GameManager.Instance.FlowState == GameFlowState.Upgrade)
+            {
+                return;
+            }
+
+            SetPaused(!isPaused);
+        }
+
+        private void SetPaused(bool paused)
+        {
+            if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
+            {
+                paused = false;
+            }
+
+            isPaused = paused;
+            Time.timeScale = isPaused ? 0f : 1f;
+            Refresh();
+        }
+
+        private void ShowHint(string message)
+        {
+            if (!shownHints.Add(message))
+            {
+                return;
+            }
+
+            ShowFeedback(message);
         }
 
         private void ApplyDraftOption(int index, Button button, Text titleText, Text descText)
@@ -466,19 +520,50 @@ namespace EvoTowers.Task1
                 }
             }
 
+            if (isPaused)
+            {
+                DrawPauseMenu();
+            }
+
             if (game != null && game.IsGameOver)
             {
-                GUI.Box(new Rect(Screen.width * 0.5f - 170f, Screen.height * 0.5f - 90f, 340f, 180f), string.Empty);
-                GUI.Label(new Rect(Screen.width * 0.5f - 80f, Screen.height * 0.5f - 50f, 160f, 30f), game.IsVictory ? "Victory" : "Failure");
-                if (GUI.Button(new Rect(Screen.width * 0.5f - 120f, Screen.height * 0.5f + 10f, 110f, 34f), "Restart"))
+                GUI.Box(new Rect(Screen.width * 0.5f - 210f, Screen.height * 0.5f - 150f, 420f, 300f), string.Empty);
+                GUI.Label(new Rect(Screen.width * 0.5f - 180f, Screen.height * 0.5f - 120f, 360f, 180f), game.BuildSettlementSummary());
+                if (GUI.Button(new Rect(Screen.width * 0.5f - 120f, Screen.height * 0.5f + 90f, 110f, 34f), "Restart"))
                 {
                     RestartBattle();
                 }
 
-                if (GUI.Button(new Rect(Screen.width * 0.5f + 10f, Screen.height * 0.5f + 10f, 110f, 34f), "Back"))
+                if (GUI.Button(new Rect(Screen.width * 0.5f + 10f, Screen.height * 0.5f + 90f, 110f, 34f), "Back"))
                 {
                     BackToEntry();
                 }
+            }
+        }
+
+        private void DrawPauseMenu()
+        {
+            GUI.Box(new Rect(Screen.width * 0.5f - 150f, Screen.height * 0.5f - 130f, 300f, 260f), "Paused");
+            if (GUI.Button(new Rect(Screen.width * 0.5f - 100f, Screen.height * 0.5f - 82f, 200f, 34f), "Continue"))
+            {
+                GameAudio.Instance?.PlayButton();
+                SetPaused(false);
+            }
+
+            GUI.Label(new Rect(Screen.width * 0.5f - 100f, Screen.height * 0.5f - 36f, 200f, 24f), "Volume");
+            if (GameAudio.Instance != null)
+            {
+                GameAudio.Instance.Volume = GUI.HorizontalSlider(new Rect(Screen.width * 0.5f - 100f, Screen.height * 0.5f - 8f, 200f, 20f), GameAudio.Instance.Volume, 0f, 1f);
+            }
+
+            if (GUI.Button(new Rect(Screen.width * 0.5f - 100f, Screen.height * 0.5f + 28f, 200f, 34f), "Restart"))
+            {
+                RestartBattle();
+            }
+
+            if (GUI.Button(new Rect(Screen.width * 0.5f - 100f, Screen.height * 0.5f + 72f, 200f, 34f), "Back"))
+            {
+                BackToEntry();
             }
         }
 
@@ -538,6 +623,7 @@ namespace EvoTowers.Task1
 
             if (selectedEvolution != null)
             {
+                ShowHint("Choose a branch evolution to change this tower's role.");
                 string reason;
                 bool canEvolve = tower.CanEvolve(selectedEvolution, out reason);
                 GUI.Label(new Rect(panel.x + 12f, panel.y + 154f, 200f, 24f), $"{selectedEvolution.gameplayTags} Cost {selectedEvolution.evolveCost}");

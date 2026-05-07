@@ -57,6 +57,8 @@ namespace EvoTowers.Task1
             }
 
             RefreshView();
+            GameManager.Instance?.NotifyTowerBuilt();
+            GameAudio.Instance?.PlayBuild();
             return true;
         }
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task4"
+  short_description: "Week 4 complete single-run loop"
+  default_prompt: "Use task4 to plan, implement, or validate EvoTowers Week 4 complete single-run loop."
