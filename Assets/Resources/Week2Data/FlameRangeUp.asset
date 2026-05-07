@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 398c0184646b3394db6f0315a3daccea, type: 3}
+  m_Name: FlameRangeUp
+  m_EditorClassIdentifier: 
+  id: flame_range_up
+  displayName: Flame Range Up
+  description: Flame towers gain +0.45 range.
+  rarity: Common
+  type: 0
+  target: 1
+  modifierType: 2
+  value: 0.45
+  isRepeatable: 1
+  commanderRestriction: 0
