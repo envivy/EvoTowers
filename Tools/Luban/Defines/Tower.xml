@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module name="EvoTowers.Tables">
+  <bean name="Tower">
+    <var name="Id" type="int" />
+    <var name="Name" type="string" />
+    <var name="Damage" type="float" />
+    <var name="Range" type="float" />
+    <var name="AttackInterval" type="float" />
+  </bean>
+</module>

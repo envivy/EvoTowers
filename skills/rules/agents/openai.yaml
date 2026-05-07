@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rules"
+  short_description: "Tower evolution flow rules"
+  default_prompt: "Use rules to design, implement, or validate the EvoTowers tower evolution flow."

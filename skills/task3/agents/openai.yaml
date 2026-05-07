@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task3"
+  short_description: "Week 3 tower branch evolution"
+  default_prompt: "Use task3 to plan, implement, or validate EvoTowers Week 3 tower branch evolution."

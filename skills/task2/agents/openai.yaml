@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task2"
+  short_description: "Week 2 EvoTowers build-and-upgrade prototype scope"
+  default_prompt: "Use task2 to plan, implement, or validate the second-week EvoTowers build and upgrade prototype scope."

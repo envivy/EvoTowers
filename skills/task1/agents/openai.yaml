@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task1"
+  short_description: "Week 1 EvoTowers tower-defense scope"
+  default_prompt: "Use task1 to plan or implement the first-week EvoTowers battle prototype scope."
