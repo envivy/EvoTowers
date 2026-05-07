@@ -555,7 +555,7 @@ namespace EvoTowers.Task1.Editor
 
             Text goldText = CreateText(uiRoot.transform, "GoldText", "Gold: 500", font, new Vector2(18f, -18f));
             Text livesText = CreateText(uiRoot.transform, "LivesText", "Lives: 20", font, new Vector2(18f, -48f));
-            Text waveText = CreateText(uiRoot.transform, "WaveText", "Wave: 0/3", font, new Vector2(18f, -78f));
+            Text waveText = CreateText(uiRoot.transform, "WaveText", "Wave: 0/10", font, new Vector2(18f, -78f));
             Text enemiesText = CreateText(uiRoot.transform, "EnemyCountText", "Enemies: 0", font, new Vector2(18f, -108f));
             Text selectedText = CreateText(uiRoot.transform, "SelectedTowerText", "Tower: Arrow (100)", font, new Vector2(18f, -138f));
             Text commanderInfoText = CreateText(uiRoot.transform, "CommanderInfoText", "Commander: None", font, new Vector2(18f, -168f));
@@ -628,13 +628,13 @@ namespace EvoTowers.Task1.Editor
             GameObject panelObject = CreatePanel(parent, "CommanderPanel", new Vector2(760f, 360f), new Color(0.04f, 0.08f, 0.12f, 0.94f));
             CreateText(panelObject.transform, "CommanderTitle", "Choose Commander", font, new Vector2(0f, -22f), TextAnchor.UpperCenter).fontSize = 30;
 
-            GameObject flameCard = CreateSubPanel(panelObject.transform, "FlameCard", new Vector2(-180f, -40f), new Vector2(280f, 210f), new Color(0.28f, 0.16f, 0.1f, 0.96f));
+            GameObject flameCard = CreateSubPanel(panelObject.transform, "FlameCard", new Vector2(-180f, 25f), new Vector2(280f, 210f), new Color(0.28f, 0.16f, 0.1f, 0.96f));
             flameWardenNameText = CreateText(flameCard.transform, "FlameName", "Flame Warden", font, new Vector2(0f, -18f), TextAnchor.UpperCenter);
             flameWardenNameText.fontSize = 24;
             flameWardenDescText = CreateWrappedText(flameCard.transform, "FlameDesc", "Flame towers apply stronger burn pressure and longer burn effects.", font, new Vector2(0f, -60f), new Vector2(220f, 78f), 18);
             flameWardenButton = CreateButton(flameCard.transform, "FlameSelectButton", "Select", font, new Vector2(0f, -160f), TextAnchor.MiddleCenter);
 
-            GameObject rangerCard = CreateSubPanel(panelObject.transform, "RangerCard", new Vector2(180f, -40f), new Vector2(280f, 210f), new Color(0.09f, 0.2f, 0.16f, 0.96f));
+            GameObject rangerCard = CreateSubPanel(panelObject.transform, "RangerCard", new Vector2(180f, 25f), new Vector2(280f, 210f), new Color(0.09f, 0.2f, 0.16f, 0.96f));
             rangerCaptainNameText = CreateText(rangerCard.transform, "RangerName", "Ranger Captain", font, new Vector2(0f, -18f), TextAnchor.UpperCenter);
             rangerCaptainNameText.fontSize = 24;
             rangerCaptainDescText = CreateWrappedText(rangerCard.transform, "RangerDesc", "Arrow towers fire faster and gain a small crit chance bonus.", font, new Vector2(0f, -60f), new Vector2(220f, 78f), 18);

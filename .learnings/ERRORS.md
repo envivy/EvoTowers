@@ -4,6 +4,41 @@ Command failures and integration errors.
 
 ---
 
+## [ERR-20260507-005] luban_tower_csv_sharing_violation
+
+**Logged**: 2026-05-07T16:10:18+08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: config
+
+### Summary
+Running `Create Week3 Battle Scene` failed when the Luban tower CSV was temporarily locked by another process.
+
+### Error
+```text
+IOException: Sharing violation on path E:\AgentGames\EvoTowers\Tools\Luban\Datas\Tower.csv
+System.IO.File.ReadAllLines
+EvoTowers.EditorTools.LubanTowerConfigImporter.LoadTowerRows
+```
+
+### Context
+- Operation attempted: Unity menu `EvoTowers/Task3/Create Week3 Battle Scene`
+- The scene builder imports tower configs from `Tools/Luban/Datas/Tower.csv`.
+- `File.ReadAllLines` can fail when Excel, Unity import, source-control tooling, or sync tooling holds the CSV with a conflicting lock.
+
+### Suggested Fix
+Read the CSV through a `FileStream` with `FileShare.ReadWrite | FileShare.Delete` and retry briefly before surfacing an actionable error.
+
+### Metadata
+- Reproducible: yes
+- Related Files: Assets/Editor/Luban/LubanTowerConfigImporter.cs, Tools/Luban/Datas/Tower.csv
+
+### Resolution
+- **Resolved**: 2026-05-07T16:10:18+08:00
+- **Notes**: Updated `LubanTowerConfigImporter` to read with shared access and a short retry loop.
+
+---
+
 ## [ERR-20260507-004] unity_batchmode_license_ipc_timeout
 
 **Logged**: 2026-05-07T16:00:08+08:00

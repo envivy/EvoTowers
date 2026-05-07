@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Threading;
 using EvoTowers.Task1;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -60,7 +62,7 @@ namespace EvoTowers.EditorTools
                 throw new FileNotFoundException("Tower table not found.", TowerCsvPath);
             }
 
-            string[] lines = File.ReadAllLines(TowerCsvPath);
+            string[] lines = ReadAllLinesShared(TowerCsvPath);
             if (lines.Length < 4)
             {
                 throw new InvalidDataException($"Tower table has no data rows: {TowerCsvPath}");
@@ -82,6 +84,37 @@ namespace EvoTowers.EditorTools
             }
 
             return rows;
+        }
+
+        private static string[] ReadAllLinesShared(string path)
+        {
+            const int maxAttempts = 5;
+            IOException lastException = null;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8, true))
+                    {
+                        List<string> lines = new List<string>();
+                        while (!reader.EndOfStream)
+                        {
+                            lines.Add(reader.ReadLine());
+                        }
+
+                        return lines.ToArray();
+                    }
+                }
+                catch (IOException exception)
+                {
+                    lastException = exception;
+                    Thread.Sleep(50 * attempt);
+                }
+            }
+
+            throw new IOException($"Could not read tower table after {maxAttempts} attempts. Close any app editing {path}, then run Create Battle Scene again.", lastException);
         }
 
         private static Dictionary<string, int> BuildColumnMap(string[] headers)
